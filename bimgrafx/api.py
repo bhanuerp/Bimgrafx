@@ -1,3 +1,4 @@
+cat > api.py << 'EOF'
 import frappe
 from frappe.utils import today, date_diff, nowdate
 
@@ -12,7 +13,6 @@ def get_hr_managers():
     user_ids = [u.parent for u in users]
     if not user_ids:
         return []
-    # Get email IDs from User doctype
     emails = frappe.get_all(
         "User",
         filters={
@@ -40,7 +40,6 @@ def send_birthday_reminder_hr():
     if not report_data:
         return
 
-    # Dedupe by employee id
     seen = set()
     unique_data = []
     for emp in report_data:
@@ -53,7 +52,6 @@ def send_birthday_reminder_hr():
     if not recipients:
         return
 
-    # Idempotency guard: prevent double-send if scheduler fires twice
     cache_key = f"birthday_reminder_hr_sent_{today()}"
     if frappe.cache().get_value(cache_key):
         return
@@ -207,3 +205,4 @@ def send_work_anniversary_reminder():
         subject=f"🎉 Work Anniversary Reminder – {today()}",
         message=message,
     )
+EOF
