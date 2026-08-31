@@ -1,4 +1,3 @@
-cat > api.py << 'EOF'
 import frappe
 from frappe.utils import today, date_diff, nowdate
 
