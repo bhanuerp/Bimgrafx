@@ -141,9 +141,8 @@ override_doctype_class = {
 scheduler_events = {
     "daily": [
         "bimgrafx.api.send_birthday_reminder_hr",
-    ],
-	"daily": [
         "bimgrafx.api.send_work_anniversary_reminder",
+        "bimgrafx.api.send_birthday_reminders_all_companies",
     ]
 }
 
