@@ -113,6 +113,7 @@ app_include_js = "/assets/bimgrafx/js/common_script.js"
 # DocType Class
 # ---------------
 # Override standard doctype classes
+standard_queries = {"User": "bimgrafx.api.user_query"}
 
 # override_doctype_class = {
 # 	"ToDo": "custom_app.overrides.CustomToDo"
