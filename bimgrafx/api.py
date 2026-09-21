@@ -1,5 +1,64 @@
+import json
+
 import frappe
 from frappe.utils import today, date_diff, nowdate
+
+
+# ---------------------------------------------------------------------------
+# Frappe v16 workaround
+#
+# frappe.core.doctype.user.user.user_query filters on `User.user_type`, which is
+# permlevel 1. v16's query engine (Engine.check_filter_field_permission) rejects
+# filters on fields above the caller's permlevel and raises PermissionError.
+# search_widget catches that and calls respond_as_web_page(http_status_code=404),
+# so the Assign To dialog gets an HTML 404 instead of results.
+#
+# frappe.get_all() runs with ignore_permissions=True, which skips the permlevel
+# check. Registered via `standard_queries = {"User": "bimgrafx.api.user_query"}`
+# in hooks.py.
+#
+# TODO: remove this override once frappe/frappe fixes permlevel filtering in
+#       user_query, and drop the standard_queries entry from hooks.py.
+# ---------------------------------------------------------------------------
+@frappe.whitelist()
+@frappe.validate_and_sanitize_search_inputs
+def user_query(doctype, txt, searchfield, start, page_len, filters):
+    """Link-field search for User, bypassing the permlevel-1 filter check."""
+    if isinstance(filters, str):
+        filters = json.loads(filters)
+    filters = dict(filters or {})
+
+    # core accepts this flag; it is not a real field
+    filters.pop("ignore_user_type", None)
+
+    list_filters = [
+        ["enabled", "=", 1],
+        ["name", "not in", ["Administrator", "Guest"]],
+    ]
+
+    for key, value in filters.items():
+        if isinstance(value, (list, tuple)) and len(value) == 2:
+            list_filters.append([key, value[0], value[1]])
+        else:
+            list_filters.append([key, "=", value])
+
+    or_filters = []
+    if txt:
+        or_filters = [
+            ["name", "like", f"%{txt}%"],
+            ["full_name", "like", f"%{txt}%"],
+        ]
+
+    return frappe.get_all(
+        "User",
+        filters=list_filters,
+        or_filters=or_filters,
+        fields=["name", "full_name"],
+        limit_start=start,
+        limit_page_length=page_len,
+        order_by="name asc",
+        as_list=True,
+    )
 
 
 def get_hr_managers():
@@ -77,7 +136,7 @@ def send_birthday_reminder_hr():
         </tr>
         {rows}
     </table>
-    <p>Regards,<br>HR & Admin Department</p>
+    <p>Regards,<br>HR &amp; Admin Department</p>
     """
 
     frappe.sendmail(
@@ -196,7 +255,7 @@ def send_work_anniversary_reminder():
         </tr>
         {rows}
     </table>
-    <p>Regards,<br>HR & Admin Department</p>
+    <p>Regards,<br>HR &amp; Admin Department</p>
     """
 
     frappe.sendmail(
@@ -204,4 +263,3 @@ def send_work_anniversary_reminder():
         subject=f"🎉 Work Anniversary Reminder – {today()}",
         message=message,
     )
-EOF
