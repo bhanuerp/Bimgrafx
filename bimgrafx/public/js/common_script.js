@@ -1,3 +1,14 @@
+// --- Patch: frappe.db.get_link_options defaults page_length to 0 in v16,
+// --- which hits `values = values[:page_length]` in search_widget and returns [].
+// --- Force a sane default. Remove once fixed upstream in frappe/frappe.
+(function () {
+    if (!window.frappe || !frappe.db || !frappe.db.get_link_options) return;
+    const original = frappe.db.get_link_options;
+    frappe.db.get_link_options = function (doctype, txt = "", filters = {}, page_length = 10) {
+        return original.call(frappe.db, doctype, txt, filters, page_length || 10);
+    };
+})();
+
 $(document).ready(function () {
     setTimeout(function () {
         const user = frappe.session.user;
