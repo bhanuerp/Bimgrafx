@@ -4,11 +4,11 @@ authors = [
     { name = "Harish Babu Ankalla", email = "harish.ankalla25@gmail.com"}
 ]
 description = "Bimgrafx"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
-    # "frappe~=15.0.0" # Installed and managed by bench.
+    # "frappe~=16.0.0" # Installed and managed by bench.
 ]
 
 [build-system]
@@ -19,13 +19,14 @@ build-backend = "flit_core.buildapi"
 [tool.bench.dev-dependencies]
 # package_name = "~=1.1.0"
 
-# These dependencies are only installed when developer mode is enabled
+# Version constraints bench enforces against the installed apps
 [tool.bench.frappe-dependencies]
 frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
 
 [tool.ruff]
 line-length = 110
-target-version = "py310"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [
