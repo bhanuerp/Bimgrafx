@@ -241,3 +241,10 @@ scheduler_events = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+# ---------------------------------------------------------------------------
+# Runtime monkey patches (moved out of __init__.py for v16 / pip 25.3+)
+# ---------------------------------------------------------------------------
+from bimgrafx.monkey_patches import apply_patches  # noqa: E402
+
+apply_patches()
+
