@@ -203,7 +203,8 @@ def send_birthday_reminders_all_companies():
 
 
 def send_work_anniversary_reminder():
-    """Send work anniversary reminders to all HR Managers, excluding B4 employees."""
+    """Send work anniversary reminders to all HR Managers, excluding B4 employees
+    and employees who joined this calendar year (no completed year yet)."""
     report_data = frappe.db.sql(
         """
         SELECT
@@ -213,9 +214,10 @@ def send_work_anniversary_reminder():
             FLOOR(DATEDIFF(CURDATE(), date_of_joining) / 365) AS years
         FROM `tabEmployee`
         WHERE
-            DATE_FORMAT(date_of_joining, '%%m-%%d') = DATE_FORMAT(CURDATE(), '%%m-%%d')
+            DATE_FORMAT(date_of_joining, '%m-%d') = DATE_FORMAT(CURDATE(), '%m-%d')
             AND status = 'Active'
-            AND name NOT LIKE 'B4%%'
+            AND name NOT LIKE 'B4%'
+            AND YEAR(date_of_joining) <> YEAR(CURDATE())
         """,
         as_dict=True,
     )
@@ -255,7 +257,7 @@ def send_work_anniversary_reminder():
         </tr>
         {rows}
     </table>
-    <p>Regards,<br>HR &amp; Admin Department</p>
+    <p>Regards,<br>HR & Admin Department</p>
     """
 
     frappe.sendmail(
